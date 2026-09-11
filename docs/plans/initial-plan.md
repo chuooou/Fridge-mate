@@ -1,22 +1,23 @@
 # Phase 1 초기 개발 Plan
 
 작성일: 2026-09-10  
-상태: 검토용 계획. 구현은 시작하지 않았다.
+수정일: 2026-09-11 — 리뷰 및 사용자 예상 기한 편집 요구 반영
+상태: 기본 기능 구현 진행. 실제 진행·검증 결과는 `docs/plans/phase1-progress.md` 참고. 아래는 초기 설계 기록이며 모든 체크리스트가 완료되었다는 의미는 아니다.
 
 ## 1. 목적과 기준 문서
 
 닉네임으로 가입·로그인한 사용자가 재료를 직접 등록하고, 냉장·냉동 재료와 보관기한을 모바일과 데스크톱에서 확인하는 최소 사용자 Flow를 만든다.
 
-현재 루트에는 다음 두 문서만 존재한다. 소스 코드, 패키지 설정, 기존 API, 재사용할 컴포넌트, 기존 plans/solutions는 없다. 존재하지 않는 구현 패턴을 탐색하거나 가정하지 않는다.
+현재 루트에는 아래 기준 문서, README.md, docs와 Git 저장소가 존재한다. 이 Plan은 이미 작성되어 있으며 소스 코드, 패키지 설정, 기존 API, 재사용할 컴포넌트는 없다. 존재하지 않는 구현 패턴을 탐색하거나 가정하지 않는다.
 
 | 실제 파일 | 확인된 내용 | 이번 계획에서의 역할 |
 | --- | --- | --- |
-| `AGENTS.md.txt` | 「냉장고를 부탁해」 서비스 요구사항과 기술 스택, §28 Phase 1 | 제품 명세 |
-| `PROJECT.md.txt` | 「AI Development Guide」, Plan → Work → Review → Compound → Repeat | 개발 워크플로 |
+| `AGENTS.md` | 「냉장고를 부탁해」 서비스 요구사항과 기술 스택, §28 Phase 1 | 제품 명세 |
+| `PROJECT.md` | 「AI Development Guide」, Plan → Work → Review → Compound → Repeat | 개발 워크플로 |
 
-요청된 `AGENTS.md`와 `PROJECT.md`는 실제로 없고, `.txt` 확장자 및 내용의 역할이 뒤바뀌어 있다. 이번 작업은 내용에 따라 해석하며 원본 이름과 내용은 변경하지 않는다. 다음 구현 작업에서도 이 매핑을 먼저 확인한다. 문서명 정리는 별도 변경 사항으로 제안한다.
+최초 작성 당시 두 파일에 `.txt` 확장자가 있었지만 현재는 `.md`로 정리되어 있다. 내용의 역할은 README의 설명과 반대이므로 위 매핑에 따라 해석한다. 원본 문서와 README는 이번 작업에서 변경하지 않는다.
 
-이번 변경은 `docs/plans/initial-plan.md` 생성 하나다. 아래 파일·API·검증 명령은 향후 구현을 위한 제안이며 현재 존재하는 것으로 취급하지 않는다.
+이번 변경은 `docs/plans/initial-plan.md` 수정 하나다. 아래 파일·API·검증 명령은 향후 구현을 위한 제안이며 현재 존재하는 것으로 취급하지 않는다.
 
 ## 2. 범위와 완료 목표
 
@@ -49,7 +50,7 @@
 | 생성 예정 파일 | 책임 / 생성 단계 |
 | --- | --- |
 | `package.json`, `package-lock.json`, `index.html`, `tsconfig.json`, `tsconfig.app.json`, `tsconfig.node.json`, `vite.config.ts`, `eslint.config.js`, `.gitignore` | Vite/TypeScript, 의존성, 실행·검증 설정 / 작업 1 |
-| `.env.example`, `README.md` | 공개 설정 예시, 실행 방법, mock 초기화와 검증 방법 / 작업 1부터 갱신 |
+| `.env.example` (생성), `README.md` (기존 파일 수정) | 공개 설정 예시, 실행 방법, mock 초기화와 검증 방법 / 작업 1부터 갱신 |
 | `src/main.tsx`, `src/app/App.tsx`, `src/app/providers/AppProviders.tsx` | mock 시작 후 React 부트스트랩, Query provider / 작업 1 |
 | `src/app/router/router.tsx`, `src/app/layouts/AppLayout.tsx`, `src/app/styles.css` | 라우트, 공통 반응형 틀, Tailwind 스타일 / 작업 1 |
 | `src/shared/api/client.ts`, `src/shared/api/errors.ts` | Axios 인스턴스, 공통 오류 정규화 / 작업 2 |
@@ -58,7 +59,8 @@
 | `src/features/auth/types.ts`, `api.ts`, `queries.ts`, `schemas.ts`, `AuthForm.tsx`, `RequireAuth.tsx` | 모두 `src/features/auth/` 하위. 인증 DTO, 통신, Query, 폼, 접근 제어 / 작업 3 |
 | `src/pages/LoginPage.tsx`, `src/pages/SignupPage.tsx`, `src/pages/NotFoundPage.tsx` | 인증 화면과 없는 경로 / 작업 1·3 |
 | `src/features/ingredient/types.ts`, `api.ts`, `schemas.ts`, `IngredientForm.tsx` | 모두 `src/features/ingredient/` 하위. 재료 DTO, 등록 요청, 검증, 입력 UI / 작업 4 |
-| `src/features/ingredient/expiry.ts`, `expiryPolicy.ts` | 날짜 계산·표현 및 mock 전용 예상 기간 fixture / 작업 4 |
+| `src/features/ingredient/expiry.ts` | 날짜 계산·표현, 자동 예상값과 사용자 지정값 구분 / 작업 4 |
+| `src/mocks/fixtures/ingredientCatalog.ts` | 표준 재료 ID·표시 이름·위치별 mock 보관기간. 자유 입력 이름으로 매칭하지 않음 / 작업 4 |
 | `src/pages/AddIngredientPage.tsx` | 재료 직접 등록 화면 조합 / 작업 4 |
 | `src/features/fridge/api.ts`, `queries.ts`, `selectors.ts`, `IngredientList.tsx` | 모두 `src/features/fridge/` 하위. 목록 조회, Query key, 필터·정렬, 목록 표시 / 작업 5 |
 | `src/pages/FridgePage.tsx` | 내 냉장고 화면 조합 / 작업 5 |
@@ -72,7 +74,7 @@
 | --- | --- |
 | `/` | 현재 사용자 확인 완료 후 `/fridge` 또는 `/login`으로 이동 |
 | `/signup` | 닉네임·비밀번호 가입, 성공 시 로그인으로 이동 |
-| `/login` | 로그인 성공 시 `/fridge`로 이동 |
+| `/login` | 로그인 성공 시 보호 경로에서 전달된 안전한 앱 내부 경로로 복귀. 없으면 `/fridge`로 이동 |
 | `/fridge` | 인증 필요. 요약, 기한 임박 재료, 필터·정렬, 전체 목록, 추가 CTA |
 | `/ingredients/new` | 인증 필요. 직접 등록 폼, 저장/취소 |
 | 그 외 | 페이지를 찾을 수 없음과 돌아가기 링크 |
@@ -103,8 +105,10 @@
 ### 공통 DTO와 정책
 
 - `User`: `id: string`, `nickname: string`. 비밀번호는 응답에 포함하지 않는다.
-- `Ingredient`: `id: string`, `name: string`, `quantity: number`, `unit: string`, `storage: 'fridge' | 'freezer'`, `registeredOn: YYYY-MM-DD`, `createdAt: ISO timestamp`, `registrationMethod: 'manual'`, `actualExpiry: { date: YYYY-MM-DD, kind: 'useBy' | 'bestBefore' } | null`, `estimatedExpiry: { date: YYYY-MM-DD, basis: string } | null`.
-- 등록 요청은 `name`, `quantity`, `unit`, `storage`, `registeredOn`, `actualExpiry`만 받는다. ID, 생성 시각, 등록 방식, 예상 기한은 mock 서버가 결정한다. 소유자는 인증 세션에서 결정하며 요청의 userId를 신뢰하지 않는다.
+- `Ingredient`: `id: string`, `name: string`, `standardIngredientId: string | null`, `quantity: number`, `unit: string`, `storage: 'fridge' | 'freezer'`, `registeredOn: YYYY-MM-DD`, `createdAt: ISO timestamp`, `registrationMethod: 'manual'`, `actualExpiry: { date: YYYY-MM-DD, kind: 'useBy' | 'bestBefore' } | null`, `estimatedExpiry: { date: YYYY-MM-DD, source: 'calculated' | 'user', basis: string } | null`.
+- `StandardIngredient`: `id: string`, `label: string`. 자유 입력 이름과 독립된 계산 기준이다.
+- 등록 요청은 `name`, `standardIngredientId`, `quantity`, `unit`, `storage`, `registeredOn`, `actualExpiry`, `estimateInput`을 받는다. `estimateInput`은 `{ mode: 'automatic' }`, `{ mode: 'manual', date: YYYY-MM-DD }`, `{ mode: 'none' }` 중 하나다. 실제 날짜를 제출할 때는 `none`만 허용하여 이번 등록에서는 실제/예상 중 한 종류만 저장한다.
+- 자동 모드는 서버가 표준 재료 ID와 보관 위치로 계산하며 계산 불가 시 예상 기한은 null이다. 수동 모드는 검증한 사용자 날짜를 `source: 'user'`, `basis: '사용자 지정'`으로 저장한다. ID, 생성 시각, 등록 방식과 calculated 결과의 basis는 서버가 결정한다. 소유자는 인증 세션에서 결정하며 요청의 userId를 신뢰하지 않는다.
 - 일반 오류: `{ error: { code: string, message: string, fieldErrors?: Record<string, string> } }`. 네트워크 오류처럼 응답이 없으면 클라이언트가 구별 가능한 오류로 정규화한다.
 - 모든 개인 데이터 요청은 미인증 시 401. 일반 4xx를 자동 반복 요청하지 않는다. 목록 조회의 네트워크/5xx 재시도는 1회, mutation 자동 재시도는 끈다.
 
@@ -114,10 +118,12 @@
 | POST `/api/auth/login` | `{ nickname, password }` | 200 `{ user: User }`; 세션 설정 | 400 형식 오류, 401 자격 증명 불일치 |
 | GET `/api/auth/me` | 없음 | 200 `{ user: User }` | 401 세션 없음/만료 |
 | POST `/api/auth/logout` | 없음 | 204, 세션 제거 | 네트워크/5xx. 서버 실패 시 로그아웃 완료로 표시하지 않음 |
+| GET `/api/ingredients/catalog` | 없음 | 200 `{ items: StandardIngredient[] }` | 401, 500 |
+| POST `/api/ingredients/estimate-expiry` | `{ standardIngredientId, storage, registeredOn }` | 200 `{ estimate: { date, basis } \| null }`; 날짜는 YYYY-MM-DD | 400 잘못된 ID/입력, 401, 500 |
 | GET `/api/fridge/ingredients` | 없음 | 200 `{ items: Ingredient[] }` | 401, 500 |
 | POST `/api/fridge/ingredients` | 등록 요청 DTO | 201 `{ item: Ingredient }` | 400 필드 오류, 401, 500 |
 
-현재 목록 규모에서는 전체 조회 후 프론트에서 필터·정렬한다. 페이지네이션이나 재료 검색 API를 미리 추가하지 않는다. 직접 검색/입력 요구는 Phase 1에서 자유 입력으로 충족한다.
+현재 목록 규모에서는 전체 조회 후 프론트에서 필터·정렬한다. 표준 재료는 소수 목록을 조회해 선택하며 별도 검색 API나 페이지네이션은 추가하지 않는다. 자유 입력 이름과 표준 재료 선택을 분리한다. catalog와 estimate 핸들러는 `src/mocks/handlers/fridge.ts`, 호출은 ingredient/api.ts가 담당한다. catalog Query key는 `['ingredient-catalog']`이며 목록을 폼에 복제하지 않는다. 예상값 미리보기는 등록하지 않고 서버와 동일한 계산 경계를 검증한다.
 
 ### 인증과 mock 경계
 
@@ -140,15 +146,30 @@ MSW는 메모리의 계정·현재 세션·사용자별 재료를 사용한다. 
 | 등록 날짜 | 기본 오늘, 유효한 날짜 필수. 미래 등록 날짜는 거부 |
 | 실제 날짜 | 선택 입력. 입력하면 소비기한/유통기한 종류 필수. 과거 날짜는 경과 안내 후 저장 가능 |
 | 같은 재료 재등록 | 별도 항목으로 저장. 단위·날짜가 다를 수 있어 자동 합산하지 않음 |
-| 예상 계산 불가 | 실제 날짜도 fixture도 없으면 `기한 정보 없음`. 임의 기간 생성 금지 |
+| 예상 계산 불가 | 표준 재료 미선택/해당 보관 위치의 기준 없음이면 자동 날짜를 채우지 않는다. 예상 날짜 직접 선택 또는 기한 없이 저장 가능 |
+
+### 확정된 등록 UX: 자동 예상 기한을 기본값으로, 사용자 변경 허용
+
+사용자 합의: 재료명은 자유 입력하고 계산용 표준 재료는 선택 사항으로 둔다. 보관기한 종류의 기본 선택은 `예상 보관기한`이다. 표준 재료·보관 위치·등록 날짜가 갖춰지면 계산한 날짜를 날짜 입력란의 기본값으로 채운다. 날짜 입력란은 클릭·터치·키보드로 날짜를 선택하거나 입력할 수 있다.
+
+- 표준 재료는 `onion` 같은 고정 ID로 매칭한다. `집에서 가져온 양파`, `yangpa` 같은 표시 이름을 추론하거나 자동 매칭하지 않는다. 이름만 바꾸어도 선택한 표준 ID는 유지하며 계산 기준을 화면에 함께 표시한다.
+- 자동값을 사용자가 변경하면 수동 모드로 전환한다. 자동 계산값과 같게 입력해도 사용자가 지정한 값으로 취급한다. 자동값은 서버 미리보기 결과, 사용자 선택값은 React Hook Form이 소유한다.
+- 자동 모드에서 표준 재료·위치·등록 날짜를 바꾸면 기존 미리보기를 무효화하고 다시 계산한다. 마지막 요청 결과만 반영하며 이전 요청의 늦은 응답으로 날짜를 덮어쓰지 않는다. 재계산 중에는 자동 모드 저장을 막는다.
+- 수동 모드에서는 계산 조건 변경이나 늦은 응답이 사용자가 고른 날짜를 덮어쓰지 않는다. `자동 예상 기한으로 되돌리기`를 선택하면 현재 조건으로 다시 계산한다.
+- 날짜를 비우면 `none` 모드로 처리하고 자동으로 다시 채우지 않는다. 기준이 없거나 계산 요청에 실패해도 날짜를 직접 고르거나 기한 없이 저장할 수 있다. 실패는 안내하고 자동 모드 저장 대신 재시도·직접 지정·기한 없이 저장을 선택하게 한다.
+- 사용자가 고른 예상 날짜도 실제 소비기한/유통기한으로 승격하지 않는다. `예상 보관기한 · 사용자 지정`으로 표시한다. 실제 날짜를 아는 경우 기한 종류를 소비기한/유통기한으로 바꾸어 입력한다. 종류 전환 시 기존 날짜를 다른 의미로 자동 복사하지 않는다.
+- 수동 예상 날짜는 유효한 날짜만 허용하고 과거 날짜는 경과 안내 후 저장할 수 있다. 표준 재료 미선택 상태에서도 직접 지정은 가능하다.
+- 저장 시 자동 모드라면 서버가 다시 계산한다. 저장 응답을 최종값으로 사용하고 미리보기와 달라졌다면 변경된 날짜를 안내한다. 사용자 지정 날짜는 서버가 자동값으로 덮어쓰지 않는다.
+
+이번 편집 범위는 등록 폼에서 저장 전 예상 날짜를 변경하는 것이다. 저장된 재료의 수정 화면/API는 기존 제외 범위를 유지한다.
 
 날짜는 날짜 전용 문자열로 주고받고, D-day는 사용자 로컬 달력 날짜 기준으로 계산한다. UTC timestamp를 잘라 등록 날짜로 사용하지 않는다. 날짜 경계 계산은 DST·월말·연말에서 일수 차이가 어긋나지 않게 순수 함수로 분리한다. 화면 복귀 또는 날짜 변경 시 오늘 기준을 갱신한다.
 
-실제 날짜가 있으면 우선 표시하고 예상 날짜로 덮어쓰지 않는다. 예상만 있으면 `예상 보관기한`, `약 D-2`, `일반적인 보관 기준의 대략적인 예상이며 실제 상태와 보관 환경에 따라 달라질 수 있어요`를 표시한다. 실제 날짜는 종류에 맞는 라벨을 사용한다. 오늘은 `D-day`, 과거는 `기한 경과 N일`로 표시하며 예상 정보는 경과 표시에도 `예상`을 유지한다.
+실제 날짜가 있으면 우선 표시하고 예상 날짜로 덮어쓰지 않는다. 예상만 있으면 `예상 보관기한`, `약 D-2`를 표시한다. 자동값에는 `일반적인 보관 기준의 대략적인 예상이며 실제 상태와 보관 환경에 따라 달라질 수 있어요`, 사용자 지정값에는 `직접 지정한 예상 날짜예요. 실제 소비기한을 확인한 날짜는 아니에요`를 표시한다. 실제 날짜는 종류에 맞는 라벨을 사용한다. 오늘은 `D-day`, 과거는 `기한 경과 N일`로 표시하며 예상 정보는 경과 표시에도 `예상`을 유지한다.
 
 기한 임박은 남은 0~3일로 제안하고 경과 항목은 별도 강조한다. 기한 임박 필터는 0~3일만 포함한다. 기본 정렬은 기한 오름차순(경과 포함), 기한 없음은 마지막이다. 최근 등록순은 `createdAt` 내림차순, 이름순은 한국어 기준이며 동률은 ID로 안정화한다. 위치별 건수는 전체 항목 수로 계산하며 단위가 다른 수량을 합치지 않는다.
 
-예상 보관기간의 실제 근거 데이터는 제공되지 않았다. MSW에서는 테스트용임이 명확한 소수 재료 fixture로 등록 날짜 + 보관 위치별 일수 계산 Flow만 검증한다. 이를 실제 식품 보관 기준으로 출시하지 않는다. 실제 데이터 근거·정책이 확정되면 Backend가 계산 결과와 basis를 제공하고 프론트는 표시만 담당한다.
+예상 보관기간의 실제 근거 데이터는 제공되지 않았다. MSW에서는 테스트용임이 명확한 소수 표준 재료 ID별 fixture로 등록 날짜 + 보관 위치별 일수 계산 Flow만 검증한다. 이를 실제 식품 보관 기준으로 출시하지 않는다. 실제 데이터 근거·정책이 확정되면 Backend가 계산 결과와 basis를 제공하며, 프론트는 미리보기와 사용자 날짜 편집을 담당한다. fixture를 프론트에서 직접 import하지 않는다.
 
 ## 7. 구현 순서 — 향후 Work 체크리스트
 
@@ -186,6 +207,8 @@ MSW는 메모리의 계정·현재 세션·사용자별 재료를 사용한다. 
 
 - [ ] ingredient 타입·schema·폼을 만들고 이름/수량/단위/보관 위치/날짜를 입력받는다.
 - [ ] 실제 날짜와 예상 날짜를 별도 필드로 유지하고 mock 예상 정책 및 계산 함수를 추가한다.
+- [ ] 표준 재료 선택과 예상 미리보기 API를 연결하고 예상 기한을 기본 선택으로 둔다. 날짜 직접 변경·비우기·자동값 복원을 구현한다.
+- [ ] 조건 변경 시 자동값 재계산, 수동값 유지, 늦은 응답 무시, 실제/예상 종류 전환 시 의미가 다른 날짜를 복사하지 않는 동작을 검증한다.
 - [ ] 등록 성공 시 목록 key를 무효화하고 내 냉장고로 이동한다. 요청 실패 시 폼을 유지하며 취소는 저장하지 않는다.
 - [ ] 수량·날짜 경계·중복 제출·예상 기준 없음 테스트를 통과시킨다.
 
@@ -227,7 +250,7 @@ MSW는 메모리의 계정·현재 세션·사용자별 재료를 사용한다. 
 | `src/test/setup.ts`, `src/mocks/server.ts` | 테스트마다 mock DB/handler/Query 캐시 초기화, 실제 네트워크 의존 방지 |
 | `src/features/auth/auth.integration.test.tsx` | 중복 닉네임, 틀린 비밀번호, 인증 로딩/만료, 계정 전환 후 이전 목록 제거 |
 | `src/features/ingredient/expiry.test.ts` | 실제 우선, 예상 라벨, 냉장/냉동 차이, 계산 근거 없음, 오늘/경과/월말/연말/시간대 경계 |
-| `src/features/ingredient/IngredientForm.test.tsx` | 양수 수량·날짜 검증, 실패 시 입력 유지, 중복 제출 방지, 성공 후 목록 갱신 |
+| `src/features/ingredient/IngredientForm.test.tsx` | 양수 수량·날짜 검증, 자동 예상 기본값, 클릭/키보드 날짜 변경, source 저장, 자동값 복원, 수동값 덮어쓰기 방지, 늦은 응답 무시, 기준 없음/날짜 비우기/실제 날짜 전환, 실패 시 입력 유지, 중복 제출 방지, 성공 후 목록 갱신 |
 | `src/features/fridge/selectors.test.ts` | 위치 건수, 임박 경계 0/3/4일, 경과 분리, 기한 없음 마지막, 안정적 정렬 |
 | `src/features/fridge/FridgePage.test.tsx` | 빈 목록/필터 빈 결과 구분, 최초 실패 재시도, background 실패 데이터 유지 |
 
@@ -247,12 +270,14 @@ Review는 구현 설명을 다시 읽는 대신 요구사항과 사용자 행동
 
 공통 규칙 승격은 필요성과 문안을 먼저 제안하고 개발자 판단을 따른다. AGENTS 문서를 임의 수정하지 않는다. 가능한 예방은 문서 추가보다 타입·테스트·Lint로 반영한다.
 
-이번 Plan 작성에서 확인한 지식은 문서 파일명·역할 불일치이며 1절에 기록했다. 원인은 확인되지 않았으므로 추정하지 않는다. 현재는 별도 solution이나 공통 규칙 추가보다 향후 파일명 정리를 제안한다.
+이번 Plan 검토에서 확인한 지식은 자유 입력 이름과 계산 기준 ID의 분리, 자동값과 사용자 지정값의 출처 구분이다. 이를 DTO와 테스트 계획에 반영했다. 아직 구현에서 검증한 해결책은 아니므로 별도 solution을 만들지 않는다. 문서 역할 불일치는 1절에 기록하며 원인은 추정하지 않는다.
 
 ## 10. 계획 자체의 검토 결과와 확정 시점
+
+2026-09-11 사용자 합의로 자유 입력 이름 + 선택적 표준 재료, 자동 예상 날짜 기본값 + 사용자 날짜 변경을 확정했다. DTO·미리보기 API·작업 4·테스트 계획까지 함께 반영했다. 나머지 리뷰 중 캐시 격리 책임 파일과 전환 순서, 닉네임 중복 검사 시점, 환경변수 기반 mock 전환은 후속 명확화 대상이다. 로그인 후 원래 경로 복귀 여부는 추가 질문으로 결정하며, 현재 문서의 기본 동작은 `/fridge` 이동이다. 인증 저장과 테스트 전략은 기존 §5·§8의 제안을 유지한다.
 
 Phase 1의 초기 구성·Responsive·MSW·가입/로그인·닉네임·직접 등록·냉장/냉동·내 냉장고·보관기한·Error Handling을 작업 1~6에 매핑했다. Backend 순차 전환은 작업 7에 두었고 이후 Phase 기능은 제외했다. Source of Truth, API 초안, 파일 책임, 오류 복구, 검증과 Compound 절차를 포함했다.
 
 닉네임·비밀번호 규칙, 기한 임박 3일, mock 초기화 정책과 세션 방식은 제안이다. 프론트 구현 시 먼저 확인할 정책으로 유지한다. 실제 보관기간 데이터 근거와 서버 스택·인증·배포 정책은 실제 Backend 연결 전 확정이 필요하다. 새 요구사항이나 계약 변경이 생기면 영향을 받는 DTO·폼·mock·테스트 계획을 함께 갱신한다.
 
-현재 완료 범위는 이 Plan 문서 작성 및 요구사항 대조 검토다. 의존성 설치, 소스·설정 생성, 앱 실행, 테스트 실행, Backend 구현은 수행하지 않았다. 후속 구현 요청 전에는 Work 단계로 넘어가지 않는다.
+최초 작성 시에는 문서만 작성했다. 이후 사용자가 기본 기능 구현을 승인했고, GitHub에 올릴 수 있는 소규모 기능 범위로 우선 마무리하도록 요청했다. 실행 결과와 남은 작업은 `docs/plans/phase1-progress.md`에서 관리한다.
