@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+public/mockServiceWorker.js
+package-lock.json
+.superpowers
+artifacts
+AGENTS.md
+PROJECT.md
